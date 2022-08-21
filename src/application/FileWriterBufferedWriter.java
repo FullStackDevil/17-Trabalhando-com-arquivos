@@ -12,7 +12,7 @@ public class FileWriterBufferedWriter {
 
 		String path = "c:\\temp\\out.txt";
 
-		try (BufferedWriter bw = new BufferedWriter(new FileWriter(path))) {
+		try (BufferedWriter bw = new BufferedWriter(new FileWriter(path, true))) {
 			for (String line : lines) {
 				bw.write(line);
 				bw.newLine();
