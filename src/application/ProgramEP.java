@@ -8,51 +8,55 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+
+import entities.Product;
 
 public class ProgramEP {
 
 	public static void main(String[] args) throws IOException {
 
+		Locale.setDefault(Locale.US);
+
 		String inPath = "c:\\temp\\source.csv";
-		
-		Files.createDirectories(Paths.get("c:\\temp\\out"));
-		
 		String outPath = "c:\\temp\\out\\summary.csv";
+		List<Product> products = new ArrayList<>();
 
-		File file = new File(outPath);
-		if (file.exists()) {
-			file.delete();
-		}
-
-		readingFile(inPath, outPath);
+		readFile(inPath, outPath, products);
 
 	}
 
-	public static void readingFile(String iPath, String oPath) {
+	public static void readFile(String iPath, String oPath, List<Product> rProducts) {
 
-		String line0 = "";
+		String line = "";
 
 		try (BufferedReader br = new BufferedReader(new FileReader(iPath))) {
-			while ((line0 = br.readLine()) != null) {
-				String[] metadata = line0.split(",");
-				String item = metadata[0].toString();
-				Double dblPrice = Double.parseDouble(metadata[1].toString());
-				Double dblQuantity = Double.parseDouble(metadata[2].toString());
-				Double total = dblPrice * dblQuantity;
-				String line1 = (item + ", " + String.format("%.2f", total));
-				writingFile(oPath, line1);
+			while ((line = br.readLine()) != null) {
+				String[] metadata = line.split(",");
+				String item = metadata[0];
+				double dblPrice = Double.parseDouble(metadata[1]);
+				int intQuantity = Integer.parseInt(metadata[2]);
+				rProducts.add(new Product(item, dblPrice, intQuantity));
 			}
 		} catch (IOException e) {
 			System.out.println("Error: " + e.getMessage());
 		}
+
+		writeFile(oPath, rProducts);
 	}
 
-	public static void writingFile(String oPath, String line) {
-		try (BufferedWriter bw = new BufferedWriter(new FileWriter(oPath, true))) {
-			bw.write(line);
-			bw.newLine();
+	public static void writeFile(String oPath, List<Product> wProducts) {
+		try (BufferedWriter bw = new BufferedWriter(new FileWriter(oPath))) {
+			for (Product prod : wProducts) {
+				bw.write(prod.getItem() + ", " + String.format("%.2f", prod.totalValue()));
+				bw.newLine();
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
+		} finally {
+			System.out.println("Terminated!");
 		}
 	}
 }
